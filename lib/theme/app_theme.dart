@@ -1,35 +1,66 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Parimatch Signature Colors
-  static const Color primary = Color(0xFFF8FF13); // Electric Volt / Parimatch Neon Yellow
-  static const Color primaryDark = Color(0xFFDCE200); // Darker Electric Yellow
-  static const Color secondary = Color(0xFF00E676); // Electric Mint / Lime Green
-  static const Color accentPurple = Color(0xFFA855F7); // Neon Purple
-  static const Color accentGold = Color(0xFFF8FF13); // Yellow / Gold Accent
-  static const Color accentRose = Color(0xFFFF2D55); // Intense Red
-  static const Color accentOrange = Color(0xFFFF9100); // Energetic Orange
+  // Палитра по ТЗ:
+  // • Основной фон и нижняя навигация — #0E151F
+  // • Фон карточек и секций — #192434
+  // • Поля поиска, второстепенные элементы — #263447
+  // • Основной акцент, кнопки и активные вкладки — #5AC4B1 (бирюзовый)
+  // • Лаймовый акцент для прогресса и достижений — #C7ED4C
+  // • Основной текст и заголовки — #FFFFFF
+  // • Текст на бирюзовых и лаймовых кнопках — #0E151F
+  // • Второстепенный текст — #AAB7C4
 
-  // Background Surfaces (Deep Pitch Black & Carbon Slate)
-  static const Color background = Color(0xFF0C0D0F); // Parimatch Pitch Black
-  static const Color surface = Color(0xFF16181D); // Carbon Graphite Surface
-  static const Color surfaceCard = Color(0xFF1F222A); // Elevated Dark Card
-  static const Color surfaceBorder = Color(0xFF2C303B); // Subtle Dark Border
+  static const Color background = Color(0xFF0E151F);
+  static const Color surface = Color(0xFF0E151F);
+  static const Color surfaceCard = Color(0xFF192434);
+  static const Color surfaceSecondary = Color(0xFF263447);
+  static const Color surfaceBorder = Color(0xFF263447);
 
-  // Text Colors
-  static const Color textPrimary = Color(0xFFFFFFFF); // Pure White
-  static const Color textSecondary = Color(0xFF9EACB9); // Silver Gray
-  static const Color textMuted = Color(0xFF656D7A); // Muted Graphite
+  static const Color primary = Color(0xFF5AC4B1); // Бирюзовый акцент
+  static const Color accentLime = Color(0xFFC7ED4C); // Лаймовый акцент
+  static const Color onAccent = Color(0xFF0E151F); // Текст на кнопках
 
-  // Box Shadows
-  static List<BoxShadow> get neonGlow => [
+  // Дополнительные семантические константы в единой палитре
+  static const Color secondary = accentLime;
+  static const Color accentGold = accentLime;
+  static const Color accentPurple = primary;
+  static const Color accentRose = Color(0xFFFF5252);
+
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xFFAAB7C4);
+  static const Color textMuted = Color(0xFF758595);
+
+  static const double cardRadius = 16.0;
+  static const double buttonRadius = 12.0;
+  static const double screenPadding = 16.0;
+  static const double buttonHeight = 48.0;
+
+  static List<BoxShadow> get cardShadow => [
         BoxShadow(
-          color: primary.withAlpha(70),
-          blurRadius: 18,
-          spreadRadius: 2,
+          color: Colors.black.withAlpha(50),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
         ),
       ];
+
+  static List<BoxShadow> get tealGlow => [
+        BoxShadow(
+          color: primary.withAlpha(60),
+          blurRadius: 16,
+          spreadRadius: 1,
+        ),
+      ];
+
+  static List<BoxShadow> get limeGlow => [
+        BoxShadow(
+          color: accentLime.withAlpha(60),
+          blurRadius: 16,
+          spreadRadius: 1,
+        ),
+      ];
+
+  static List<BoxShadow> get neonGlow => tealGlow;
 
   static ThemeData get darkTheme {
     return ThemeData(
@@ -38,44 +69,84 @@ class AppTheme {
       primaryColor: primary,
       colorScheme: const ColorScheme.dark(
         primary: primary,
-        secondary: secondary,
-        surface: surface,
-        error: accentRose,
-        onPrimary: Color(0xFF0C0D0F),
+        secondary: accentLime,
+        surface: surfaceCard,
+        error: Color(0xFFFF5252),
+        onPrimary: onAccent,
+        onSecondary: onAccent,
         onSurface: textPrimary,
       ),
-      textTheme: GoogleFonts.interTextTheme(
-        ThemeData.dark().textTheme,
-      ).apply(
-        bodyColor: textPrimary,
-        displayColor: textPrimary,
+      fontFamily: null, // Системный шрифт по ТЗ
+      textTheme: const TextTheme(
+        headlineLarge: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+          color: textPrimary,
+          letterSpacing: -0.5,
+        ),
+        headlineMedium: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: textPrimary,
+          letterSpacing: -0.3,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: textPrimary,
+        ),
+        titleMedium: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: textPrimary,
+        ),
+        bodyLarge: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+          color: textPrimary,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.normal,
+          color: textSecondary,
+        ),
+        labelLarge: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: onAccent,
+        ),
+        bodySmall: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.normal,
+          color: textSecondary,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
-          foregroundColor: const Color(0xFF0C0D0F),
-          elevation: 0,
-          textStyle: GoogleFonts.outfit(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.5,
+          foregroundColor: onAccent,
+          minimumSize: const Size(0, buttonHeight),
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(buttonRadius),
           ),
+          elevation: 0,
         ),
       ),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: background,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.outfit(
-          fontSize: 19,
-          fontWeight: FontWeight.w900,
+        titleTextStyle: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
           color: textPrimary,
-          letterSpacing: 0.5,
+          letterSpacing: -0.3,
         ),
-        iconTheme: const IconThemeData(color: primary),
+        iconTheme: IconThemeData(color: primary),
       ),
     );
   }

@@ -1,4 +1,4 @@
-package par.nmeet.ru
+package par.mfiul.ru
 
 import io.flutter.embedding.android.FlutterActivity
 
