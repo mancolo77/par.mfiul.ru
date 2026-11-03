@@ -7,8 +7,7 @@
     <application
         android:label="Пар"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon"
-        android:usesCleartextTraffic="true">
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -36,6 +35,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
         <!-- Receivers for local notifications and device reboot persistence -->
         <receiver
             android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"

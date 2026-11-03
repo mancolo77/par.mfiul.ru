@@ -39,7 +39,7 @@ class GeoService {
     try {
       final response = await http
           .get(Uri.parse('https://get.geojs.io/v1/ip/country.json'))
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(milliseconds: 1500));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic>) {
@@ -59,7 +59,7 @@ class GeoService {
       try {
         final response = await http
             .get(Uri.parse(url), headers: {'Accept': 'application/json'})
-            .timeout(const Duration(seconds: 4));
+            .timeout(const Duration(milliseconds: 1500));
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           if (data is Map<String, dynamic>) {
@@ -79,7 +79,7 @@ class GeoService {
     try {
       final response = await http
           .get(Uri.parse('https://api.myip.com'))
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(milliseconds: 1500));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic>) {
@@ -101,7 +101,7 @@ class GeoService {
     try {
       final response = await http
           .get(Uri.parse('https://ipwho.is/'))
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(milliseconds: 1500));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic> && data['success'] == true) {

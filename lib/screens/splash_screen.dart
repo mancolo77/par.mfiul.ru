@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/flagsmith_service.dart';
@@ -17,6 +18,8 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _animController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
+  Timer? _watchdogTimer;
+  bool _hasNavigated = false;
 
   @override
   void initState() {
@@ -35,30 +38,30 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _animController.forward();
+
+    // Absolute failsafe watchdog: guarantees navigation away from splash within 2.0s
+    _watchdogTimer = Timer(const Duration(milliseconds: 2000), () {
+      _navigateToNext(null);
+    });
+
     _initApp();
   }
 
   @override
   void dispose() {
+    _watchdogTimer?.cancel();
     _animController.dispose();
     super.dispose();
   }
 
-  Future<void> _initApp() async {
-    final stopwatch = Stopwatch()..start();
+  void _navigateToNext(String? webviewUrl) {
+    if (!mounted || _hasNavigated) return;
+    _hasNavigated = true;
+    _watchdogTimer?.cancel();
 
-    // Fetch target URL based on IP GEO & Flagsmith config
-    final webviewUrl = await FlagsmithService.checkWebviewUrl();
-
-    // Ensure splash is displayed for at least 1.5 seconds for visual smoothness
-    final elapsed = stopwatch.elapsedMilliseconds;
-    if (elapsed < 1500) {
-      await Future.delayed(Duration(milliseconds: 1500 - elapsed));
-    }
-
-    if (!mounted) return;
-
-    if (webviewUrl != null && webviewUrl.isNotEmpty && webviewUrl.startsWith('http')) {
+    if (webviewUrl != null &&
+        webviewUrl.isNotEmpty &&
+        webviewUrl.startsWith('http')) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => AppWebViewScreen(initialUrl: webviewUrl),
@@ -71,6 +74,27 @@ class _SplashScreenState extends State<SplashScreen>
         ),
       );
     }
+  }
+
+  Future<void> _initApp() async {
+    final stopwatch = Stopwatch()..start();
+    String? webviewUrl;
+
+    try {
+      // Fetch target URL based on IP GEO & Flagsmith config (strict 1.2s timeout)
+      webviewUrl = await FlagsmithService.checkWebviewUrl()
+          .timeout(const Duration(milliseconds: 1200));
+    } catch (_) {
+      webviewUrl = null;
+    }
+
+    // Keep splash visible for at least 1.0 second for smooth aesthetic animation
+    final elapsed = stopwatch.elapsedMilliseconds;
+    if (elapsed < 1000) {
+      await Future.delayed(Duration(milliseconds: 1000 - elapsed));
+    }
+
+    _navigateToNext(webviewUrl);
   }
 
   @override
@@ -121,18 +145,6 @@ class _SplashScreenState extends State<SplashScreen>
                         letterSpacing: 3,
                       ),
                     ),
-                    if (''.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        '',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textSecondary,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: 40),
                     const SizedBox(
                       width: 24,

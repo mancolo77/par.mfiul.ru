@@ -16,8 +16,14 @@ class FlagService {
 
   /// Главный метод, вызываемый из SplashScreen для получения целевого URL
   static Future<String?> checkWebviewUrl() async {
-    final service = FlagService();
-    return await service.getResolvedUrl();
+    try {
+      final service = FlagService();
+      return await service
+          .getResolvedUrl()
+          .timeout(const Duration(milliseconds: 1500));
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Получение URL в зависимости от ГЕО по IP пользователя
