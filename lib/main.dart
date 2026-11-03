@@ -8,8 +8,6 @@ import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize local bonus push notifications service
   await LocalNotificationService.instance.initialize();
 
   // Set system UI overlay styling
