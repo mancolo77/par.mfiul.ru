@@ -16,37 +16,59 @@ class _AppWebViewScreenState extends State<AppWebViewScreen> {
   bool _hasError = false;
   String? _errorMessage;
 
+  // Standard Mobile Chrome User-Agent without the embedded 'wv' tag
+  // Prevents anti-bot / cloaking TDS filters from treating WebView as a bot
+  static const String _mobileUserAgent =
+      'Mozilla/5.0 (Linux; Android 14; SM-S908B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36';
+
   @override
   void initState() {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(AppTheme.background)
+      ..setUserAgent(_mobileUserAgent)
+      ..setBackgroundColor(Colors.white)
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (progress) {
-            setState(() {
-              _loadingProgress = progress;
-            });
+            if (mounted) {
+              setState(() {
+                _loadingProgress = progress;
+              });
+            }
           },
           onPageStarted: (url) {
-            setState(() {
-              _hasError = false;
-              _errorMessage = null;
-            });
+            if (mounted) {
+              setState(() {
+                _hasError = false;
+                _errorMessage = null;
+              });
+            }
           },
           onPageFinished: (url) {
-            setState(() {
-              _loadingProgress = 100;
-            });
+            if (mounted) {
+              setState(() {
+                _loadingProgress = 100;
+              });
+            }
           },
           onWebResourceError: (error) {
             if (error.isForMainFrame ?? true) {
-              setState(() {
-                _hasError = true;
-                _errorMessage = error.description;
-              });
+              if (mounted) {
+                setState(() {
+                  _hasError = true;
+                  _errorMessage = error.description;
+                });
+              }
             }
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            final url = request.url;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+              // Ignore non-http custom schemes (intent:, tg:, tel:) to avoid WebView crash
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
           },
         ),
       )
@@ -64,7 +86,7 @@ class _AppWebViewScreenState extends State<AppWebViewScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: Colors.white,
         body: SafeArea(
           child: Stack(
             children: [
@@ -74,15 +96,28 @@ class _AppWebViewScreenState extends State<AppWebViewScreen> {
                 _buildErrorView(),
 
               if (_loadingProgress < 100 && !_hasError)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: LinearProgressIndicator(
-                    value: _loadingProgress / 100.0,
-                    backgroundColor: Colors.transparent,
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primary),
-                    minHeight: 3,
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.white.withValues(alpha: 0.85),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFE5233A)),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Загрузка ($_loadingProgress%)...',
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -102,14 +137,14 @@ class _AppWebViewScreenState extends State<AppWebViewScreen> {
             const Icon(Icons.wifi_off_rounded, size: 64, color: AppTheme.accentRose),
             const SizedBox(height: 16),
             const Text(
-              'Connection Error',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+              'Ошибка соединения',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
             const SizedBox(height: 8),
             Text(
-              _errorMessage ?? 'Unable to reach the server. Please check your internet connection.',
+              _errorMessage ?? 'Не удалось загрузить страницу. Проверьте интернет-соединение.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+              style: const TextStyle(color: Colors.black54, fontSize: 13),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -122,12 +157,12 @@ class _AppWebViewScreenState extends State<AppWebViewScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
-                foregroundColor: Colors.black,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry Connection', style: TextStyle(fontWeight: FontWeight.bold)),
+              label: const Text('Повторить попытку', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         ),
