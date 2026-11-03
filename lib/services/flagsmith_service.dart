@@ -157,7 +157,7 @@ class FlagService {
       if (configJson.containsKey('showWebView')) {
         showWebView = configJson['showWebView'] as bool? ?? false;
       } else {
-        showWebView = true; // Если передан плоский JSON {"DE": "...", "RU": "..."}, по умолчанию включаем
+        showWebView = true;
       }
 
       if (configJson.containsKey('webViewConfig') && configJson['webViewConfig'] is Map) {
@@ -192,5 +192,4 @@ class FlagService {
   }
 }
 
-// Алиас для удобства
 typedef FlagsmithService = FlagService;
