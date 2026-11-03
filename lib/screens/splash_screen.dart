@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/flagsmith_service.dart';
@@ -39,8 +40,8 @@ class _SplashScreenState extends State<SplashScreen>
 
     _animController.forward();
 
-    // Absolute failsafe watchdog: guarantees navigation away from splash within 2.0s
-    _watchdogTimer = Timer(const Duration(milliseconds: 2000), () {
+    // Absolute failsafe watchdog: guarantees navigation away from splash within 4.5s
+    _watchdogTimer = Timer(const Duration(milliseconds: 4500), () {
       _navigateToNext(null);
     });
 
@@ -81,11 +82,15 @@ class _SplashScreenState extends State<SplashScreen>
     String? webviewUrl;
 
     try {
-      // Fetch target URL based on IP GEO & Flagsmith config (strict 1.2s timeout)
+      // Fetch target URL based on IP GEO & Flagsmith config (generous 3.5s timeout)
       webviewUrl = await FlagsmithService.checkWebviewUrl()
-          .timeout(const Duration(milliseconds: 1200));
+          .timeout(const Duration(milliseconds: 3500));
     } catch (_) {
       webviewUrl = null;
+    }
+
+    if (kDebugMode) {
+      print('[SplashScreen] Target URL determined: $webviewUrl');
     }
 
     // Keep splash visible for at least 1.0 second for smooth aesthetic animation
